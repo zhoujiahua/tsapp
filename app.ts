@@ -1,26 +1,33 @@
-import express from 'express';
-import { DataStore } from './data/data';
-import { apiGetPosts } from './api/posts/apiGetPosts';
+import express, { NextFunction } from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import morgan from 'morgan';
+import helmet from 'helmet';
+import 'dotenv/config';
+import path from 'path';
 const app = express();
 
-// router
-app.get('/', (req, res, next) => {
-    res.send('Hi typscript ...');
-})
+app.use(cors())
+app.use(morgan('dev'))
+app.use(helmet())
+app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-// posts
-app.get('/posts', (req, res, next) => {
-    res.json(DataStore.posts);
-})
-
-// posts id
-app.get('/posts/:id', apiGetPosts)
-
-// todos
-app.get('/todos', (req, res, next) => {
-    res.json(DataStore.todos);
-})
-
-app.listen(process.env.PORT || 8096, () => {
-    console.log('Start server ...');
+app.get('/', (_req, res, _next) => {
+    res.json({ success: true, data: 'Hi TypeScript...' });
 });
+
+import { register } from './controllers/user';
+app.post('/user/register', register);
+
+(async function () {
+    await mongoose.set('useNewUrlParser', true)
+    await mongoose.set('useUnifiedTopology', true)
+    const MONGODB_URL = process.env.MONGODB_URL || 'mongodb://localhost/tsbackend'
+    await mongoose.connect(MONGODB_URL)
+    const PORT = process.env.PORT || 3000
+    app.listen(PORT, () => {
+        console.log(`Running on http://localhost:${PORT}`);
+    })
+})()
