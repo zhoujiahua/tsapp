@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import 'dotenv/config';
 import path from 'path';
-const app = express();
+const app: express.Application = express();
 
 app.use(cors())
 app.use(morgan('dev'))
